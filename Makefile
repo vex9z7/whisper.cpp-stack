@@ -48,7 +48,7 @@ download:
 	ls -lh models
 
 up: check
-	$(COMPOSE) up -d
+	$(COMPOSE) up -d --force-recreate
 
 down:
 	$(COMPOSE) down
@@ -57,7 +57,11 @@ logs:
 	$(COMPOSE) logs -f whisper
 
 health:
-	curl -fsS "$(BASE_URL)/" >/dev/null
+	@code=$$(curl -sS -o /dev/null -w "%{http_code}" -X POST "$(BASE_URL)/v1/audio/transcriptions" -F "model=whisper-1" || true); \
+	if [ "$$code" = "000" ]; then \
+		echo "whisper.cpp server is not reachable: $(BASE_URL)" >&2; \
+		exit 1; \
+	fi
 	@echo "whisper.cpp server is reachable: $(BASE_URL)"
 
 transcribe:

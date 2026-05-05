@@ -91,7 +91,10 @@ jobs:
         run: make download MODEL=small
 
       - name: Start CPU service
-        run: make up MODEL=small BACKEND=cpu
+        run: |
+          make up MODEL=small BACKEND=cpu
+          docker compose -f docker-compose.yml ps
+          docker compose -f docker-compose.yml logs whisper
 
       - name: Wait for service health
         shell: bash
@@ -103,8 +106,12 @@ jobs:
             fi
             sleep 2
           done
+          docker compose -f docker-compose.yml ps
           docker compose -f docker-compose.yml logs whisper
           exit 1
+
+      - name: Verify configured model
+        run: docker compose -f docker-compose.yml logs whisper | grep -F "/models/ggml-small.bin"
 
       - name: Transcribe sample
         run: make smoke

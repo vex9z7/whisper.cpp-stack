@@ -11,17 +11,24 @@ services:
       - no-new-privileges:true
     tmpfs:
       - /tmp:size=512m,mode=1777
-    command: >-
-      whisper-server
-      --host 0.0.0.0
-      --port 2022
-      -m /models/${WHISPER_MODEL_FILE:-ggml-small.bin}
-      --convert
-      --inference-path /v1/audio/transcriptions
-      --processors ${WHISPER_PROCESSORS:-1}
-      --threads ${WHISPER_THREADS:-4}
+    entrypoint:
+      - /bin/bash
+      - -lc
+      - >-
+        exec whisper-server
+        --host 0.0.0.0
+        --port 2022
+        -m /models/${WHISPER_MODEL_FILE:-ggml-small.bin}
+        --convert
+        --inference-path /v1/audio/transcriptions
+        --processors ${WHISPER_PROCESSORS:-1}
+        --threads ${WHISPER_THREADS:-4}
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:2022/ >/dev/null || exit 1"]
+      test:
+        - CMD-SHELL
+        - >-
+          code=$$(curl -sS -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:2022/v1/audio/transcriptions -F model=whisper-1 || true);
+          [ "$$code" != "000" ]
       interval: 30s
       timeout: 5s
       retries: 5
