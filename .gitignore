@@ -2,8 +2,6 @@
 models/*.bin
 models/*.gguf
 models/*.tmp
-recordings/*
-examples/*
 !models/.gitkeep
 *.wav
 *.mp3

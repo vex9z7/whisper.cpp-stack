@@ -61,7 +61,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          make init
+          cp .env.example .env
           make check
           make -n download >/dev/null
           make -n up >/dev/null
@@ -84,10 +84,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Initialize config
-        run: make init
-
-      - name: Download lightweight model
-        run: make download MODEL=small
+        run: cp .env.example .env
 
       - name: Start CPU service
         run: |
@@ -127,4 +124,4 @@ jobs:
 
       - name: Stop service
         if: always()
-        run: WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.yml down || true
+        run: make down MODEL=small BACKEND=cpu || true
