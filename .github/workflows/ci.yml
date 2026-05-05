@@ -62,7 +62,7 @@ jobs:
         run: |
           set -euo pipefail
           make init
-          make backend-check
+          make check
           make -n download >/dev/null
           make -n up >/dev/null
 

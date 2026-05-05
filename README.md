@@ -41,9 +41,9 @@ WHISPER_THREADS=4
 ## Backends
 
 ```bash
-make up              # CPU
-make up-vulkan       # AMD/Intel GPU, requires /dev/dri
-make up-cuda         # NVIDIA GPU, requires NVIDIA Container Toolkit
+make up                         # CPU, default
+make up BACKEND=vulkan           # AMD/Intel GPU, requires /dev/dri
+make up BACKEND=cuda             # NVIDIA GPU, requires NVIDIA Container Toolkit
 ```
 
 Or set `WHISPER_BACKEND=cpu|vulkan|cuda` in `.env` and run `make up`.

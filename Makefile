@@ -23,21 +23,21 @@ endif
 COMPOSE_ENV := WHISPER_MODEL_FILE=ggml-$(MODEL).bin
 COMPOSE := $(COMPOSE_ENV) docker compose $(COMPOSE_FILES)
 
-.PHONY: init download up up-cpu up-vulkan up-gpu up-cuda down down-cpu down-vulkan down-gpu down-cuda logs ps health transcribe smoke clean backend-check
+.PHONY: init check download up down logs health transcribe smoke clean
 
 init:
 	cp -n .env.example .env || true
 	mkdir -p models recordings examples
 
-backend-check:
+check:
 	@case "$(BACKEND)" in \
 		cpu) echo "Backend cpu: no GPU device required" ;; \
 		vulkan) test -e /dev/dri || (echo "Missing /dev/dri for Vulkan backend" >&2; exit 2); echo "Backend vulkan: /dev/dri found" ;; \
 		cuda) command -v nvidia-smi >/dev/null || (echo "nvidia-smi not found; install NVIDIA driver/container toolkit for CUDA backend" >&2; exit 2); nvidia-smi -L ;; \
 	esac
+	@test -n "$(MODEL)" || (echo "MODEL is empty. Set WHISPER_MODEL in .env or pass MODEL=<name>" >&2; exit 2)
 
 # Download ggml model into ./models, e.g. make download MODEL=base
-# Uses the CPU image because download scripts do not require GPU support.
 download:
 	@test -n "$(MODEL)" || (echo "MODEL is empty. Set WHISPER_MODEL in .env or pass MODEL=<name>" >&2; exit 2)
 	mkdir -p models
@@ -47,36 +47,14 @@ download:
 		"./models/download-ggml-model.sh $(MODEL) /models"
 	ls -lh models
 
-up: backend-check
-	@test -n "$(MODEL)" || (echo "MODEL is empty. Set WHISPER_MODEL in .env or pass MODEL=<name>" >&2; exit 2)
+up: check
 	$(COMPOSE) up -d
-
-up-cpu:
-	$(MAKE) up BACKEND=cpu
-
-up-vulkan up-gpu:
-	$(MAKE) up BACKEND=vulkan
-
-up-cuda:
-	$(MAKE) up BACKEND=cuda
 
 down:
 	$(COMPOSE) down
 
-down-cpu:
-	$(MAKE) down BACKEND=cpu
-
-down-vulkan down-gpu:
-	$(MAKE) down BACKEND=vulkan
-
-down-cuda:
-	$(MAKE) down BACKEND=cuda
-
 logs:
 	$(COMPOSE) logs -f whisper
-
-ps:
-	$(COMPOSE) ps
 
 health:
 	curl -fsS "$(BASE_URL)/" >/dev/null
