@@ -8,15 +8,17 @@ AUDIO ?= examples/jfk.wav
 BACKEND ?= $(or $(WHISPER_BACKEND),cpu)
 PORT ?= $(or $(WHISPER_PORT),2022)
 BASE_URL ?= http://127.0.0.1:$(PORT)
-DOWNLOAD_IMAGE ?= ghcr.io/ggml-org/whisper.cpp:main
 COMPOSE_CMD ?= docker compose
 
 ifeq ($(BACKEND),cpu)
 COMPOSE_FILES := -f docker-compose.yml
+WHISPER_IMAGE := ghcr.io/ggml-org/whisper.cpp:main
 else ifeq ($(BACKEND),vulkan)
 COMPOSE_FILES := -f docker-compose.yml -f docker-compose.vulkan.yml
+WHISPER_IMAGE := ghcr.io/ggml-org/whisper.cpp:main-vulkan
 else ifeq ($(BACKEND),cuda)
 COMPOSE_FILES := -f docker-compose.yml -f docker-compose.cuda.yml
+WHISPER_IMAGE := ghcr.io/ggml-org/whisper.cpp:main-cuda
 else
 $(error Unsupported BACKEND=$(BACKEND). Use cpu, vulkan, or cuda)
 endif
@@ -45,7 +47,7 @@ download:
 	mkdir -p models
 	docker run --rm \
 		-v "$$(pwd)/models:/models:Z" \
-		$(DOWNLOAD_IMAGE) \
+		$(WHISPER_IMAGE) \
 		"./models/download-ggml-model.sh $(MODEL) /models"
 	ls -lh models
 

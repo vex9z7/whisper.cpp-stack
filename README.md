@@ -16,7 +16,7 @@ Requirements: Linux, Docker with Compose plugin, `curl`. If your host uses stand
 
 ```bash
 make init
-make download        # downloads WHISPER_MODEL from .env, default large-v3-turbo
+make download        # downloads WHISPER_MODEL using selected backend image
 make up              # CPU backend by default
 make health
 make smoke
@@ -46,7 +46,7 @@ make up BACKEND=vulkan           # AMD/Intel GPU, requires /dev/dri
 make up BACKEND=cuda             # NVIDIA GPU, requires NVIDIA Container Toolkit
 ```
 
-Or set `WHISPER_BACKEND=cpu|vulkan|cuda` in `.env` and run `make up`.
+Or set `WHISPER_BACKEND=cpu|vulkan|cuda` in `.env`; both `make download` and `make up` will use that backend image.
 
 ## Usage
 
