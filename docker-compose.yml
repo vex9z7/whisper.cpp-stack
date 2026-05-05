@@ -6,7 +6,7 @@ services:
     ports:
       - "127.0.0.1:${WHISPER_PORT:-2022}:2022"
     volumes:
-      - ./models:/models:ro
+      - ./models:/models:ro,Z
     security_opt:
       - no-new-privileges:true
     tmpfs:

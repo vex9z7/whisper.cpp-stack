@@ -42,7 +42,7 @@ download:
 	@test -n "$(MODEL)" || (echo "MODEL is empty. Set WHISPER_MODEL in .env or pass MODEL=<name>" >&2; exit 2)
 	mkdir -p models
 	docker run --rm \
-		-v "$$(pwd)/models:/models" \
+		-v "$$(pwd)/models:/models:Z" \
 		$(DOWNLOAD_IMAGE) \
 		"./models/download-ggml-model.sh $(MODEL) /models"
 	ls -lh models

@@ -110,6 +110,16 @@ make up
 
 The model file is derived as `ggml-<WHISPER_MODEL>.bin`.
 
+## Troubleshooting
+
+On SELinux systems such as Fedora/Bazzite, bind-mounted model files need a container label. This repo uses `:Z` on the `./models` mount for both model download and runtime. If you still see `Permission denied` while downloading, reset the label and retry:
+
+```bash
+mkdir -p models
+chcon -Rt container_file_t models 2>/dev/null || true
+make download
+```
+
 ## Notes
 
 - Binds to `127.0.0.1` by default.
