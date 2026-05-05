@@ -3,11 +3,11 @@ SHELL := /usr/bin/env bash
 -include .env
 export
 
-MODEL ?= small
+MODEL ?= $(WHISPER_MODEL)
 AUDIO ?= examples/jfk.wav
 BACKEND ?= $(or $(WHISPER_BACKEND),cpu)
-HOST_PORT ?= $(or $(WHISPER_HOST_PORT),2022)
-BASE_URL ?= http://127.0.0.1:$(HOST_PORT)
+PORT ?= $(or $(WHISPER_PORT),2022)
+BASE_URL ?= http://127.0.0.1:$(PORT)
 DOWNLOAD_IMAGE ?= ghcr.io/ggml-org/whisper.cpp:main
 
 ifeq ($(BACKEND),cpu)
@@ -20,7 +20,8 @@ else
 $(error Unsupported BACKEND=$(BACKEND). Use cpu, vulkan, or cuda)
 endif
 
-COMPOSE := docker compose $(COMPOSE_FILES)
+COMPOSE_ENV := WHISPER_MODEL_FILE=ggml-$(MODEL).bin
+COMPOSE := $(COMPOSE_ENV) docker compose $(COMPOSE_FILES)
 
 .PHONY: init download up up-cpu up-vulkan up-gpu up-cuda down down-cpu down-vulkan down-gpu down-cuda logs ps health transcribe smoke clean backend-check
 
@@ -38,6 +39,7 @@ backend-check:
 # Download ggml model into ./models, e.g. make download MODEL=base
 # Uses the CPU image because download scripts do not require GPU support.
 download:
+	@test -n "$(MODEL)" || (echo "MODEL is empty. Set WHISPER_MODEL in .env or pass MODEL=<name>" >&2; exit 2)
 	mkdir -p models
 	docker run --rm \
 		-v "$$(pwd)/models:/models" \
@@ -46,6 +48,7 @@ download:
 	ls -lh models
 
 up: backend-check
+	@test -n "$(MODEL)" || (echo "MODEL is empty. Set WHISPER_MODEL in .env or pass MODEL=<name>" >&2; exit 2)
 	$(COMPOSE) up -d
 
 up-cpu:

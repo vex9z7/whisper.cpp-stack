@@ -30,7 +30,7 @@ This is not token-level streaming ASR. For realtime UX, send short completed chu
 
 ```bash
 make init
-make download MODEL=small
+make download  # downloads WHISPER_MODEL from .env
 make up        # default backend is CPU
 make health
 make smoke
@@ -72,8 +72,8 @@ To make a backend persistent, edit `.env`:
 
 ```bash
 WHISPER_BACKEND=cpu      # cpu | vulkan | cuda
-WHISPER_HOST_PORT=2022
-WHISPER_MODEL_FILE=ggml-small.bin
+WHISPER_PORT=2022
+WHISPER_MODEL=large-v3-turbo
 WHISPER_PROCESSORS=1
 WHISPER_THREADS=4
 ```
@@ -112,9 +112,11 @@ Health check:
 make health
 ```
 
-Smoke test with the public JFK sample from whisper.cpp:
+Smoke test with the public JFK sample from whisper.cpp. This tests the currently running service; for a lightweight test setup you may run the service with `MODEL=small`:
 
 ```bash
+make download MODEL=small
+make up MODEL=small
 make smoke
 ```
 
@@ -131,17 +133,17 @@ Models are explicit and local:
 
 ```bash
 make download MODEL=base
-make download MODEL=small
+make download MODEL=small   # test-only lightweight model
 make download MODEL=large-v3-turbo
 ```
 
 Downloaded files are stored in `./models` and mounted read-only into the container. Update `.env` when switching models:
 
 ```bash
-WHISPER_MODEL_FILE=ggml-base.bin
+WHISPER_MODEL=base
 ```
 
-Then restart:
+The compose command derives the model file as `ggml-<WHISPER_MODEL>.bin`. Then restart:
 
 ```bash
 make down
@@ -152,7 +154,7 @@ make up
 
 ```bash
 make init
-make download MODEL=small
+make download             # downloads WHISPER_MODEL from .env
 make up                  # CPU default
 make up-vulkan
 make up-cuda
