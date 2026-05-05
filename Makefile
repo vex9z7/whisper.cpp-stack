@@ -12,11 +12,11 @@ DOWNLOAD_IMAGE ?= ghcr.io/ggml-org/whisper.cpp:main
 COMPOSE_CMD ?= docker compose
 
 ifeq ($(BACKEND),cpu)
-COMPOSE_FILES := -f docker-compose.yml
+COMPOSE_FILES := -f docker-compose.cpu.yml
 else ifeq ($(BACKEND),vulkan)
-COMPOSE_FILES := -f docker-compose.yml -f docker-compose.vulkan.yml
+COMPOSE_FILES := -f docker-compose.vulkan.yml
 else ifeq ($(BACKEND),cuda)
-COMPOSE_FILES := -f docker-compose.yml -f docker-compose.cuda.yml
+COMPOSE_FILES := -f docker-compose.cuda.yml
 else
 $(error Unsupported BACKEND=$(BACKEND). Use cpu, vulkan, or cuda)
 endif

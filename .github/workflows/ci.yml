@@ -70,10 +70,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.yml config >/tmp/compose.cpu.yml
-          WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.yml -f docker-compose.cpu.yml config >/tmp/compose.cpu-alias.yml
-          WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.yml -f docker-compose.vulkan.yml config >/tmp/compose.vulkan.yml
-          WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.yml -f docker-compose.cuda.yml config >/tmp/compose.cuda.yml
+          WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.cpu.yml config >/tmp/compose.cpu.yml
+          WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.vulkan.yml config >/tmp/compose.vulkan.yml
+          WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.cuda.yml config >/tmp/compose.cuda.yml
 
   smoke-cpu:
     name: CPU smoke test
@@ -93,8 +92,8 @@ jobs:
       - name: Start CPU service
         run: |
           make up MODEL=small BACKEND=cpu
-          docker compose -f docker-compose.yml ps
-          docker compose -f docker-compose.yml logs whisper
+          docker compose -f docker-compose.cpu.yml ps
+          docker compose -f docker-compose.cpu.yml logs whisper
 
       - name: Wait for service health
         shell: bash
@@ -106,19 +105,19 @@ jobs:
             fi
             sleep 2
           done
-          docker compose -f docker-compose.yml ps
-          docker compose -f docker-compose.yml logs whisper
+          docker compose -f docker-compose.cpu.yml ps
+          docker compose -f docker-compose.cpu.yml logs whisper
           exit 1
 
       - name: Verify configured model
-        run: docker compose -f docker-compose.yml logs whisper | grep -F "/models/ggml-small.bin"
+        run: docker compose -f docker-compose.cpu.yml logs whisper | grep -F "/models/ggml-small.bin"
 
       - name: Transcribe sample
         run: make smoke
 
       - name: Show logs
         if: always()
-        run: docker compose -f docker-compose.yml logs whisper || true
+        run: docker compose -f docker-compose.cpu.yml logs whisper || true
 
       - name: Stop service
         if: always()
