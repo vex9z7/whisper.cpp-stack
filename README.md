@@ -23,32 +23,6 @@ Default service URL:
 http://127.0.0.1:2022
 ```
 
-## Configure
-
-Edit `.env`:
-
-```env
-WHISPER_BACKEND=cpu          # cpu | vulkan | cuda
-WHISPER_HOST=127.0.0.1       # use 0.0.0.0 for LAN access
-WHISPER_PORT=2022
-WHISPER_MODEL=large-v3-turbo
-WHISPER_PROCESSORS=1
-WHISPER_THREADS=4
-```
-
-Backend examples:
-
-```bash
-make up BACKEND=vulkan       # AMD/Intel GPU, requires /dev/dri
-make up BACKEND=cuda         # NVIDIA GPU, requires NVIDIA Container Toolkit
-```
-
-If your host uses standalone Compose:
-
-```bash
-COMPOSE_CMD=docker-compose make up
-```
-
 ## Manual reachability test
 
 From any machine with Bash and curl:
