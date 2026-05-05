@@ -1,0 +1,13 @@
+services:
+  whisper:
+    image: ${WHISPER_CUDA_IMAGE:-ghcr.io/ggml-org/whisper.cpp:main-cuda}
+    environment:
+      NVIDIA_VISIBLE_DEVICES: ${NVIDIA_VISIBLE_DEVICES:-all}
+      NVIDIA_DRIVER_CAPABILITIES: ${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: ${NVIDIA_GPU_COUNT:-all}
+              capabilities: [gpu]

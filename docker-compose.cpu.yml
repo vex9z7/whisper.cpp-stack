@@ -1,0 +1,4 @@
+# Compatibility alias: CPU is the base compose file.
+services:
+  whisper:
+    image: ${WHISPER_CPU_IMAGE:-ghcr.io/ggml-org/whisper.cpp:main}

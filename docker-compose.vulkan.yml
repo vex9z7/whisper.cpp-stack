@@ -1,0 +1,8 @@
+services:
+  whisper:
+    image: ${WHISPER_VULKAN_IMAGE:-ghcr.io/ggml-org/whisper.cpp:main-vulkan}
+    devices:
+      - ${WHISPER_DRI_DEVICE:-/dev/dri}:${WHISPER_DRI_DEVICE:-/dev/dri}
+    group_add:
+      - video
+      - render
