@@ -4,10 +4,7 @@ SHELL := /usr/bin/env bash
 export
 
 MODEL ?= $(WHISPER_MODEL)
-AUDIO ?= examples/jfk.wav
 BACKEND ?= $(or $(WHISPER_BACKEND),cpu)
-PORT ?= $(or $(WHISPER_PORT),2022)
-BASE_URL ?= http://127.0.0.1:$(PORT)
 COMPOSE_CMD ?= docker compose
 
 ifeq ($(BACKEND),cpu)
@@ -26,7 +23,7 @@ endif
 COMPOSE_ENV := WHISPER_MODEL_FILE=ggml-$(MODEL).bin
 COMPOSE := $(COMPOSE_ENV) $(COMPOSE_CMD) $(COMPOSE_FILES)
 
-.PHONY: init check download up down logs health transcribe smoke clean
+.PHONY: init check download up
 
 init:
 	cp -n .env.example .env || true
@@ -41,7 +38,6 @@ check:
 	esac
 	@test -n "$(MODEL)" || (echo "MODEL is empty. Set WHISPER_MODEL in .env or pass MODEL=<name>" >&2; exit 2)
 
-# Download ggml model into ./models, e.g. make download MODEL=base
 download:
 	@test -n "$(MODEL)" || (echo "MODEL is empty. Set WHISPER_MODEL in .env or pass MODEL=<name>" >&2; exit 2)
 	mkdir -p models
@@ -53,38 +49,3 @@ download:
 
 up: check
 	$(COMPOSE) up -d --force-recreate
-
-down:
-	$(COMPOSE) down
-
-logs:
-	$(COMPOSE) logs -f whisper
-
-health:
-	@code=$$(curl -sS -o /dev/null -w "%{http_code}" -X POST "$(BASE_URL)/v1/audio/transcriptions" -F "model=whisper-1" || true); \
-	if [ "$$code" = "000" ]; then \
-		echo "whisper.cpp server is not reachable: $(BASE_URL)" >&2; \
-		exit 1; \
-	fi
-	@echo "whisper.cpp server is reachable: $(BASE_URL)"
-
-transcribe:
-	@test -f "$(AUDIO)" || (echo "Audio file not found: $(AUDIO)" >&2; exit 2)
-	curl -fsS "$(BASE_URL)/v1/audio/transcriptions" \
-		-F "file=@$(AUDIO)" \
-		-F "model=whisper-1" \
-		$${WHISPER_LANGUAGE:+-F language=$$WHISPER_LANGUAGE}
-	@echo
-
-smoke:
-	mkdir -p examples
-	@if [ ! -f examples/jfk.wav ]; then \
-		echo "Downloading public smoke-test sample ..."; \
-		curl -LfsS -o examples/jfk.wav https://raw.githubusercontent.com/ggml-org/whisper.cpp/master/samples/jfk.wav; \
-	fi
-	$(MAKE) health
-	$(MAKE) transcribe AUDIO=examples/jfk.wav
-
-clean:
-	rm -rf .pytest_cache
-	find recordings examples -mindepth 1 -delete
