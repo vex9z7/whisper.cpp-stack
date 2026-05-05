@@ -8,7 +8,7 @@ It runs `whisper-server` in Docker and exposes an OpenAI-compatible endpoint:
 POST /v1/audio/transcriptions
 ```
 
-Default backend is CPU. Optional overrides support Vulkan for AMD/Intel GPUs and CUDA for NVIDIA GPUs. Each backend has its own compose file, so starting Vulkan does not pull the CPU image. Models are downloaded explicitly into `./models` and mounted read-only.
+Default backend is CPU. Optional overrides support Vulkan for AMD/Intel GPUs and CUDA for NVIDIA GPUs. Models are downloaded explicitly into `./models` and mounted read-only.
 
 ## Quick start
 
