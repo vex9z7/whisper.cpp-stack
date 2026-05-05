@@ -28,10 +28,13 @@ Service URL:
 http://127.0.0.1:2022
 ```
 
+To test from another machine on your LAN, set `WHISPER_HOST=0.0.0.0` in `.env` and restart with `make down && make up`.
+
 Default `.env`:
 
 ```env
 WHISPER_BACKEND=cpu
+WHISPER_HOST=127.0.0.1
 WHISPER_PORT=2022
 WHISPER_MODEL=large-v3-turbo
 WHISPER_PROCESSORS=1
@@ -129,6 +132,6 @@ make download
 
 ## Notes
 
-- Binds to `127.0.0.1` by default.
+- Binds to `127.0.0.1` by default. Set `WHISPER_HOST=0.0.0.0` to expose it on your LAN.
 - This is chunked HTTP transcription, not token-level streaming ASR.
 - For LAN access, prefer a private Docker network, reverse proxy, or VPN.

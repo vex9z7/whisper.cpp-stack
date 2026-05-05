@@ -4,7 +4,7 @@ services:
     container_name: whisper-cpp
     restart: unless-stopped
     ports:
-      - "127.0.0.1:${WHISPER_PORT:-2022}:2022"
+      - "${WHISPER_HOST:-127.0.0.1}:${WHISPER_PORT:-2022}:2022"
     volumes:
       - ./models:/models:ro,Z
     security_opt:
