@@ -72,6 +72,12 @@ make transcribe AUDIO=recordings/test.wav
 WHISPER_LANGUAGE=zh make transcribe AUDIO=recordings/test.wav
 ```
 
+One-line smoke test from any machine with Bash and curl, without saving an audio file:
+
+```bash
+WHISPER_BASE_URL=http://your-host:2022 bash -lc 'curl -fsS "${WHISPER_BASE_URL}/v1/audio/transcriptions" -F "file=@/dev/fd/3;filename=jfk.wav;type=audio/wav" -F model=whisper-1 3< <(curl -LfsS https://raw.githubusercontent.com/ggml-org/whisper.cpp/master/samples/jfk.wav)'
+```
+
 ## Test
 
 ```bash
