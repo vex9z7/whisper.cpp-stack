@@ -11,9 +11,9 @@ POST /v1/audio/transcriptions
 Requirements: Linux, Docker with Compose plugin, `curl`.
 
 ```bash
-make init
-make download
-make up
+make init      # create .env from .env.example and local folders
+make download  # download WHISPER_MODEL into ./models
+make up        # start whisper-server with the selected backend
 ```
 
 ## Project layout
