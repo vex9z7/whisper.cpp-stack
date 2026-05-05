@@ -1,86 +1,54 @@
 # whisper.cpp-stack
 
-A small self-hosted Speech-to-Text stack based on [`whisper.cpp`](https://github.com/ggml-org/whisper.cpp).
+A minimal self-hosted Speech-to-Text stack using [`whisper.cpp`](https://github.com/ggml-org/whisper.cpp).
 
-It runs `whisper-server` in Docker and exposes an OpenAI-compatible transcription endpoint:
+It runs `whisper-server` in Docker and exposes an OpenAI-compatible endpoint:
 
 ```http
 POST /v1/audio/transcriptions
 ```
 
-Goals:
-
-- simple local STT service for completed audio chunks
-- CPU by default, with optional Vulkan and CUDA GPU backends
-- explicit model management through a local `./models` directory
-- no project-specific SDK, framework adapter, or model registry
-
-This is not token-level streaming ASR. For realtime UX, send short completed chunks from your application/VAD pipeline.
-
-## Requirements
-
-- Linux
-- Docker + Docker Compose plugin
-- `curl`
-- Optional for GPU:
-  - Vulkan backend: `/dev/dri` and Vulkan-capable AMD/Intel driver
-  - CUDA backend: NVIDIA driver + NVIDIA Container Toolkit
+Default backend is CPU. Optional overrides support Vulkan for AMD/Intel GPUs and CUDA for NVIDIA GPUs. Models are downloaded explicitly into `./models` and mounted read-only.
 
 ## Quick start
 
+Requirements: Linux, Docker Compose, `curl`.
+
 ```bash
 make init
-make download  # downloads WHISPER_MODEL from .env
-make up        # default backend is CPU
+make download        # downloads WHISPER_MODEL from .env, default large-v3-turbo
+make up              # CPU backend by default
 make health
 make smoke
 ```
 
-The service listens on localhost by default:
+Service URL:
 
 ```text
 http://127.0.0.1:2022
 ```
 
-## Deploy
+Default `.env`:
 
-### CPU, default
-
-```bash
-make up
-# or
-make up BACKEND=cpu
-```
-
-### Vulkan, AMD/Intel GPU
-
-```bash
-make up BACKEND=vulkan
-# or
-make up-vulkan
-```
-
-### CUDA, NVIDIA GPU
-
-```bash
-make up BACKEND=cuda
-# or
-make up-cuda
-```
-
-To make a backend persistent, edit `.env`:
-
-```bash
-WHISPER_BACKEND=cpu      # cpu | vulkan | cuda
+```env
+WHISPER_BACKEND=cpu
 WHISPER_PORT=2022
 WHISPER_MODEL=large-v3-turbo
 WHISPER_PROCESSORS=1
 WHISPER_THREADS=4
 ```
 
-## Usage
+## Backends
 
-Transcribe an audio file:
+```bash
+make up              # CPU
+make up-vulkan       # AMD/Intel GPU, requires /dev/dri
+make up-cuda         # NVIDIA GPU, requires NVIDIA Container Toolkit
+```
+
+Or set `WHISPER_BACKEND=cpu|vulkan|cuda` in `.env` and run `make up`.
+
+## Usage
 
 ```bash
 curl http://127.0.0.1:2022/v1/audio/transcriptions \
@@ -88,7 +56,7 @@ curl http://127.0.0.1:2022/v1/audio/transcriptions \
   -F model=whisper-1
 ```
 
-With a language hint:
+With language hint:
 
 ```bash
 curl http://127.0.0.1:2022/v1/audio/transcriptions \
@@ -97,22 +65,22 @@ curl http://127.0.0.1:2022/v1/audio/transcriptions \
   -F language=zh
 ```
 
-Or use the Makefile helper:
+Make helper:
 
 ```bash
 make transcribe AUDIO=recordings/test.wav
 WHISPER_LANGUAGE=zh make transcribe AUDIO=recordings/test.wav
 ```
 
-## Testing
-
-Health check:
+## Test
 
 ```bash
 make health
+make smoke
+make logs
 ```
 
-Smoke test with the public JFK sample from whisper.cpp. This tests the currently running service; for a lightweight test setup you may run the service with `MODEL=small`:
+For a lightweight smoke setup, use `small` only for testing:
 
 ```bash
 make download MODEL=small
@@ -120,56 +88,30 @@ make up MODEL=small
 make smoke
 ```
 
-Inspect service state/logs:
-
-```bash
-make ps
-make logs
-```
-
-## Model management
-
-Models are explicit and local:
+## Models
 
 ```bash
 make download MODEL=base
-make download MODEL=small   # test-only lightweight model
 make download MODEL=large-v3-turbo
 ```
 
-Downloaded files are stored in `./models` and mounted read-only into the container. Update `.env` when switching models:
+To switch the default model:
 
-```bash
+```env
 WHISPER_MODEL=base
 ```
 
-The compose command derives the model file as `ggml-<WHISPER_MODEL>.bin`. Then restart:
+Then restart:
 
 ```bash
 make down
 make up
 ```
 
-## Common commands
+The model file is derived as `ggml-<WHISPER_MODEL>.bin`.
 
-```bash
-make init
-make download             # downloads WHISPER_MODEL from .env
-make up                  # CPU default
-make up-vulkan
-make up-cuda
-make down
-make logs
-make health
-make smoke
-make clean
-```
+## Notes
 
-## Safety defaults
-
-- binds to `127.0.0.1` by default
-- mounts `./models` read-only
-- enables `no-new-privileges`
-- uses container `/tmp` tmpfs
-
-For LAN or production access, prefer a private Docker network, reverse proxy, or VPN rather than binding directly to `0.0.0.0`.
+- Binds to `127.0.0.1` by default.
+- This is chunked HTTP transcription, not token-level streaming ASR.
+- For LAN access, prefer a private Docker network, reverse proxy, or VPN.
