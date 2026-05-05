@@ -27,9 +27,10 @@ curl -fsS "${WHISPER_BASE_URL}/v1/audio/transcriptions" -F "file=@/dev/fd/3;file
 
 ## Models
 
-Models are stored in `./models`. `WHISPER_MODEL` maps to `models/ggml-<WHISPER_MODEL>.bin`.
+Models are stored in `./models`. `WHISPER_MODEL` is the logical model name; `WHISPER_QUANT` is the quantization suffix. The default is `WHISPER_MODEL=large-v3-turbo` and `WHISPER_QUANT=none`, which loads the original/unquantized file.
 
 ```text
-WHISPER_MODEL=small          -> models/ggml-small.bin
-WHISPER_MODEL=large-v3-turbo -> models/ggml-large-v3-turbo.bin
+WHISPER_MODEL=large-v3-turbo, WHISPER_QUANT=none -> models/ggml-large-v3-turbo.bin
+WHISPER_MODEL=large-v3-turbo, WHISPER_QUANT=q8_0 -> models/ggml-large-v3-turbo-q8_0.bin
+WHISPER_MODEL=large-v3,       WHISPER_QUANT=q5_0 -> models/ggml-large-v3-q5_0.bin
 ```
