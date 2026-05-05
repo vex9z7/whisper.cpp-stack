@@ -49,26 +49,9 @@ If your host uses standalone Compose:
 COMPOSE_CMD=docker-compose make up
 ```
 
-## Use
+## Manual reachability test
 
-Local file:
-
-```bash
-curl http://127.0.0.1:2022/v1/audio/transcriptions \
-  -F file=@recordings/test.wav \
-  -F model=whisper-1
-```
-
-With language hint:
-
-```bash
-curl http://127.0.0.1:2022/v1/audio/transcriptions \
-  -F file=@recordings/test.wav \
-  -F model=whisper-1 \
-  -F language=zh
-```
-
-Remote one-line smoke test, without saving audio locally:
+From any machine with Bash and curl:
 
 ```bash
 export WHISPER_BASE_URL=http://your-host:2022
