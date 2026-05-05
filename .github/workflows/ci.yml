@@ -71,7 +71,6 @@ jobs:
         run: |
           set -euo pipefail
           WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.yml config >/tmp/compose.cpu.yml
-          WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.yml -f docker-compose.cpu.yml config >/tmp/compose.cpu-alias.yml
           WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.yml -f docker-compose.vulkan.yml config >/tmp/compose.vulkan.yml
           WHISPER_MODEL_FILE=ggml-small.bin docker compose -f docker-compose.yml -f docker-compose.cuda.yml config >/tmp/compose.cuda.yml
 
