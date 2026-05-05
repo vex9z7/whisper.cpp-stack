@@ -26,9 +26,7 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - >-
-          code=$$(curl -sS -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:2022/v1/audio/transcriptions -F model=whisper-1 || true);
-          [ "$$code" != "000" ]
+        - bash -lc '</dev/tcp/127.0.0.1/2022'
       interval: 30s
       timeout: 5s
       retries: 5

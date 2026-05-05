@@ -97,8 +97,7 @@ jobs:
         run: |
           set -euo pipefail
           for i in {1..60}; do
-            code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST "http://127.0.0.1:2022/v1/audio/transcriptions" -F "model=whisper-1" || true)
-            if [ "$code" != "000" ]; then
+            if bash -lc '</dev/tcp/127.0.0.1/2022' 2>/dev/null; then
               exit 0
             fi
             sleep 2
