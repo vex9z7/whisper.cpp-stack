@@ -14,13 +14,6 @@ Requirements: Linux, Docker with Compose plugin, `curl`.
 make init
 make download
 make up
-make smoke
-```
-
-Default service URL:
-
-```text
-http://127.0.0.1:2022
 ```
 
 ## Manual reachability test
