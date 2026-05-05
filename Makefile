@@ -9,6 +9,7 @@ BACKEND ?= $(or $(WHISPER_BACKEND),cpu)
 PORT ?= $(or $(WHISPER_PORT),2022)
 BASE_URL ?= http://127.0.0.1:$(PORT)
 DOWNLOAD_IMAGE ?= ghcr.io/ggml-org/whisper.cpp:main
+COMPOSE_CMD ?= docker compose
 
 ifeq ($(BACKEND),cpu)
 COMPOSE_FILES := -f docker-compose.yml
@@ -21,7 +22,7 @@ $(error Unsupported BACKEND=$(BACKEND). Use cpu, vulkan, or cuda)
 endif
 
 COMPOSE_ENV := WHISPER_MODEL_FILE=ggml-$(MODEL).bin
-COMPOSE := $(COMPOSE_ENV) docker compose $(COMPOSE_FILES)
+COMPOSE := $(COMPOSE_ENV) $(COMPOSE_CMD) $(COMPOSE_FILES)
 
 .PHONY: init check download up down logs health transcribe smoke clean
 
@@ -30,6 +31,7 @@ init:
 	mkdir -p models recordings examples
 
 check:
+	@$(COMPOSE_CMD) version >/dev/null 2>&1 || (echo "Compose command failed: $(COMPOSE_CMD). Install Docker Compose plugin or run with COMPOSE_CMD=docker-compose" >&2; exit 2)
 	@case "$(BACKEND)" in \
 		cpu) echo "Backend cpu: no GPU device required" ;; \
 		vulkan) test -e /dev/dri || (echo "Missing /dev/dri for Vulkan backend" >&2; exit 2); echo "Backend vulkan: /dev/dri found" ;; \

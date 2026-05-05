@@ -12,7 +12,7 @@ Default backend is CPU. Optional overrides support Vulkan for AMD/Intel GPUs and
 
 ## Quick start
 
-Requirements: Linux, Docker Compose, `curl`.
+Requirements: Linux, Docker with Compose plugin, `curl`. If your host uses standalone Compose, run with `COMPOSE_CMD=docker-compose`.
 
 ```bash
 make init
