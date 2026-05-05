@@ -3,6 +3,3 @@ services:
     image: ghcr.io/ggml-org/whisper.cpp:main-vulkan
     devices:
       - /dev/dri:/dev/dri
-    group_add:
-      - video
-      - render
