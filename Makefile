@@ -50,7 +50,6 @@ check:
 
 download:
 	@test -n "$(MODEL)" || (echo "MODEL is empty. Set WHISPER_MODEL in .env or pass MODEL=<name>" >&2; exit 2)
-	mkdir -p models
 	@if [ -f "$(MODEL_PATH)" ]; then \
 		echo "Model already exists: $(MODEL_PATH)"; \
 	else \
