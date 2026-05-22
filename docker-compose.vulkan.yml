@@ -1,5 +1,5 @@
 services:
   whisper:
-    image: ghcr.io/ggml-org/whisper.cpp:main-vulkan-${WHISPER_CPP_REF:-afa2ea544fb4b0448916b4a31ecd33c8685bd482}
+    image: ghcr.io/ggml-org/whisper.cpp:main-vulkan-${WHISPER_CPP_REF}
     devices:
       - /dev/dri:/dev/dri

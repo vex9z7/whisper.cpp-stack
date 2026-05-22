@@ -8,7 +8,7 @@ QUANT ?= $(WHISPER_QUANT)
 BACKEND ?= $(or $(WHISPER_BACKEND),cpu)
 COMPOSE_CMD ?= docker compose
 
-IMAGE_REF := $(or $(WHISPER_CPP_REF),afa2ea544fb4b0448916b4a31ecd33c8685bd482)
+IMAGE_REF ?= $(WHISPER_CPP_REF)
 
 COMPOSE_FILES_cpu := -f docker-compose.yml
 COMPOSE_FILES_vulkan := -f docker-compose.yml -f docker-compose.vulkan.yml
@@ -44,6 +44,7 @@ COMPOSE := WHISPER_MODEL_FILE=$(MODEL_FILE) WHISPER_CPP_REF=$(IMAGE_REF) $(COMPO
 check:
 	@$(COMPOSE_CMD) version >/dev/null 2>&1 || (echo "Compose command failed: $(COMPOSE_CMD). Install Docker Compose plugin or run with COMPOSE_CMD=docker-compose" >&2; exit 2)
 	@test -n "$(MODEL)" || (echo "MODEL is empty. Set WHISPER_MODEL in .env or pass MODEL=<name>" >&2; exit 2)
+	@test -n "$(IMAGE_REF)" || (echo "WHISPER_CPP_REF is empty. Add it to .env or pass WHISPER_CPP_REF=<ref>" >&2; exit 2)
 	@case "$(BACKEND)" in \
 		cpu) echo "Backend cpu: no GPU device required" ;; \
 		vulkan) test -e /dev/dri || (echo "Missing /dev/dri for Vulkan backend" >&2; exit 2); echo "Backend vulkan: /dev/dri found" ;; \
@@ -52,6 +53,7 @@ check:
 
 download:
 	@test -n "$(MODEL)" || (echo "MODEL is empty. Set WHISPER_MODEL in .env or pass MODEL=<name>" >&2; exit 2)
+	@test -n "$(IMAGE_REF)" || (echo "WHISPER_CPP_REF is empty. Add it to .env or pass WHISPER_CPP_REF=<ref>" >&2; exit 2)
 	@if [ -f "$(MODEL_PATH)" ]; then \
 		echo "Model already exists: $(MODEL_PATH)"; \
 	else \
