@@ -11,18 +11,26 @@ services:
       - no-new-privileges:true
     tmpfs:
       - /tmp:size=512m,mode=1777
+    environment:
+      WHISPER_MODEL: ${WHISPER_MODEL:-large-v3-turbo}
+      WHISPER_QUANT: ${WHISPER_QUANT:-}
+      WHISPER_MODEL_FILE: ${WHISPER_MODEL_FILE:-}
+      WHISPER_PROCESSORS: ${WHISPER_PROCESSORS:-1}
+      WHISPER_THREADS: ${WHISPER_THREADS:-4}
     entrypoint:
       - /bin/bash
       - -lc
       - >-
+        model_file="$${WHISPER_MODEL_FILE:-ggml-$${WHISPER_MODEL:-large-v3-turbo}$${WHISPER_QUANT:+-$${WHISPER_QUANT}}.bin}";
+        test -r "/models/$${model_file}" || { echo "Missing model file: /models/$${model_file}. Run make up to download it." >&2; exit 1; };
         exec whisper-server
         --host 0.0.0.0
         --port 2022
-        -m /models/${WHISPER_MODEL_FILE:-ggml-small.bin}
+        -m "/models/$${model_file}"
         --convert
         --inference-path /v1/audio/transcriptions
-        --processors ${WHISPER_PROCESSORS:-1}
-        --threads ${WHISPER_THREADS:-4}
+        --processors "$${WHISPER_PROCESSORS:-1}"
+        --threads "$${WHISPER_THREADS:-4}"
     healthcheck:
       test:
         - CMD-SHELL
