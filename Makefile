@@ -8,13 +8,15 @@ QUANT ?= $(WHISPER_QUANT)
 BACKEND ?= $(or $(WHISPER_BACKEND),cpu)
 COMPOSE_CMD ?= docker compose
 
+IMAGE_REF := $(or $(WHISPER_CPP_REF),afa2ea544fb4b0448916b4a31ecd33c8685bd482)
+
 COMPOSE_FILES_cpu := -f docker-compose.yml
 COMPOSE_FILES_vulkan := -f docker-compose.yml -f docker-compose.vulkan.yml
 COMPOSE_FILES_cuda := -f docker-compose.yml -f docker-compose.cuda.yml
 
-WHISPER_IMAGE_cpu := ghcr.io/ggml-org/whisper.cpp:main
-WHISPER_IMAGE_vulkan := ghcr.io/ggml-org/whisper.cpp:main-vulkan
-WHISPER_IMAGE_cuda := ghcr.io/ggml-org/whisper.cpp:main-cuda
+WHISPER_IMAGE_cpu := ghcr.io/ggml-org/whisper.cpp:main-$(IMAGE_REF)
+WHISPER_IMAGE_vulkan := ghcr.io/ggml-org/whisper.cpp:main-vulkan-$(IMAGE_REF)
+WHISPER_IMAGE_cuda := ghcr.io/ggml-org/whisper.cpp:main-cuda-$(IMAGE_REF)
 
 SUPPORTED_BACKENDS := cpu vulkan cuda
 SUPPORTED_QUANTS := q5_0 q5_1 q8_0
@@ -35,7 +37,7 @@ MODEL_NAME := $(MODEL)-$(QUANT)
 endif
 MODEL_FILE := ggml-$(MODEL_NAME).bin
 MODEL_PATH := models/$(MODEL_FILE)
-COMPOSE := WHISPER_MODEL_FILE=$(MODEL_FILE) $(COMPOSE_CMD) $(COMPOSE_FILES)
+COMPOSE := WHISPER_MODEL_FILE=$(MODEL_FILE) WHISPER_CPP_REF=$(IMAGE_REF) $(COMPOSE_CMD) $(COMPOSE_FILES)
 
 .PHONY: check download up down
 

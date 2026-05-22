@@ -1,6 +1,6 @@
 services:
   whisper:
-    image: ghcr.io/ggml-org/whisper.cpp:main
+    image: ghcr.io/ggml-org/whisper.cpp:main-${WHISPER_CPP_REF:-afa2ea544fb4b0448916b4a31ecd33c8685bd482}
     container_name: whisper-cpp
     restart: unless-stopped
     ports:
